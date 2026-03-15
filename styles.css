@@ -1,0 +1,49 @@
+html{
+    background-color: black;
+}
+
+body{
+    display: flex;
+    font-family:'Courier New', Courier, monospace;
+}
+
+#canv{
+    display: flex;
+    justify-self: center;
+    align-items: center;
+    border: 2px solid black;
+    width: 1650px;
+    height: 850px;
+}
+
+#position,#status,#history{
+    min-width: 250px;
+    max-width: 250px;
+    /* border:2px solid rgb(61, 108, 196); */
+}
+
+#history{
+    min-height: 300px;
+    max-height: 300px;
+    color:gold
+}
+
+#position{
+    color: aqua;
+}
+
+#status{
+    min-height:250px;
+    color:brown
+}
+
+#position{
+    min-height: 50px;
+    max-height: 50px;
+}
+
+#controles{
+    color:brown;
+    min-height:200px;
+    max-height:200px
+}
