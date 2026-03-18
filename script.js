@@ -1,6 +1,3 @@
-const map1_history = "You decided to enter the Inferno Dungeons to 'save the world' How noble! What they didn't tell you is that it smells like sulfur, it's unbearably hot, and everything here wants to kill you. By the way, why does this fortress need three books to open a single portal? Demon architects are really something else.";
-let mapCharged = false
-let currentMap = 1
 
 const delayForKeyRequest = 0
 let delay = delayForKeyRequest
@@ -19,104 +16,8 @@ const history = document.getElementById("history")
 
 const FPS = 50;
 
-//Colores
-const rock = 0
-const grass = 1
-const lava = 2
-const land = 3
-const key = 4
-const door = 5
 //Casilla
 const BoxS = 50;
-
-//Ruta de imágrenes
-const PlayerR = "./map/player.png";
-const DevilR = "./map/devil.png"
-const SkullR = "./map/skull.png"
-const SlimeR = "./map/slime.png"
-const keyR = "./map/book.png"
-const wallR = "./map/wall.png"
-const landR = "./map/land.png"
-const doorR = "./map/portal.png"
-const lavaR = "./map/lava.png"
-//Move lists
-const playerMovList = [door, land, key, grass]
-const devilMovList = [grass, land]
-const skullMovList = [grass, land, lava]
-const slimeMovList = [grass, land]
-
-const InitPlayerX = 100
-const InitPlayerY = 150
-
-const InitDevilX = 100
-const InitDevilY = 600
-
-const InitSkullX = 800
-const InitSkullY = 550
-
-const InitSlimeX = 1200
-const InitSlimeY = 300
-
-//const sprites
-const sprites = {
-    wall: new Image(),
-    land: new Image(),
-    door: new Image(),
-    key: new Image(),
-    skull: new Image(),
-    player: new Image(),
-    devil: new Image(),
-    slime: new Image(),
-    lava: new Image(),
-}
-
-const ranges = {
-    skull: 5,
-    slime: 6,
-    devil: 4,
-}
-
-sprites.wall.src = wallR
-sprites.land.src = landR
-
-sprites.door.src = doorR
-sprites.key.src = keyR
-
-sprites.devil.src = DevilR
-sprites.player.src = PlayerR
-sprites.skull.src = SkullR
-sprites.slime.src = SlimeR
-sprites.lava.src = lavaR
-
-let keyL = []
-let numKeys = 0
-
-//Mapa
-//0 rock
-//1 grass
-//2 lava
-//3 land
-//4 key
-//5 door
-const map = [   //h= 17 x=33
-    [2, 2, 2, 2, 2, 2, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2],
-    [2, 2, 5, 2, 2, 1, 1, 0, 0, 0, 2, 2, 2, 2, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2],
-    [2, 2, 1, 2, 1, 1, 1, 1, 1, 0, 2, 2, 1, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 2, 2, 2],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 2, 1, 2, 2, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2],
-    [0, 1, 1, 1, 1, 1, 1, 1, 4, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2],
-    [0, 1, 1, 1, 1, 1, 2, 1, 1, 0, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2],
-    [0, 2, 1, 1, 1, 1, 2, 2, 1, 0, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2],
-    [2, 2, 1, 1, 1, 2, 2, 2, 2, 0, 1, 1, 1, 1, 2, 2, 2, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2],
-    [2, 1, 1, 1, 1, 1, 2, 1, 1, 0, 1, 1, 1, 2, 2, 1, 2, 2, 2, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2],
-    [2, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 0, 1, 1, 1, 1, 1, 1, 4, 1, 1, 2, 2, 2],
-    [0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 2, 2, 2, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, 2, 2],
-    [0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 2, 2, 1, 1, 1, 2],
-    [2, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2],
-    [2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2],
-    [2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
-    [2, 2, 2, 1, 2, 0, 1, 1, 1, 1, 1, 1, 0, 2, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2],
-    [2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2],
-]
 
 //Clases
 const prota = function (x, y, image, movL) {
@@ -130,47 +31,67 @@ const prota = function (x, y, image, movL) {
     this.movL = movL
 
     this.logic = function (prevX, prevY) {
-        if (getGrid(this.x, this.y) == key) {
-            this.requestAccepted = true
-            this.key++
-            playMusic(keyAudioRoute, keyVolume)
-            paint_map(this.x, this.y, grass)
-            refreshKeyStatus()
+        const gridX = Math.floor(this.x / BoxS)
+        const gridY = Math.floor(this.y / BoxS)
+        if (keys.length > 0) {
+            let i = 0
+            for (const k of keys) {
+                if (gridX == k.gridX && gridY == k.gridY) {
+                    this.requestAccepted = true
+                    this.key++
+                    playMusic(keyAudioRoute, keyVolume)
+                    refreshKeyStatus()
+                    console.log("LLAVE RECOGIDA. Restantes en keys:", keys.length);
+                    break
+                }
+                i++
+            }
+            keys.splice(i, 1)
         }
 
-        if (getGrid(this.x, this.y) == door) {
-            if (this.key >= numKeys) {
-                this.win = true
-                playMusic(portalAudioRoute, portalVolume)
-                restart()
-            } else {
-                this.requestAccepted = false
-                this.y = prevY
-                this.x = prevX
+        if (doors.length > 0) {
+            for (const door of doors) {
+                if (door.gridX == gridX && door.gridY == gridY) {
+                    if (this.key >= numKeys) {
+                        this.win = true
+                        playMusic(portalAudioRoute, portalVolume)
+                        nextLevel()
+                    } else {
+                        this.requestAccepted = false
+                        console.log(this.requestAccepted)
+                        this.y = prevY
+                        this.x = prevX
+                    }
+                    break
+                }
             }
         }
     }
 
     this.enemyColition = function () {
-        let hitDevil = false
-        let hitSkull = false
-        let hitSlime = false
-        if (parseInt(this.x / 50) == parseInt(devil.x / 50) && parseInt(this.y / 50) == parseInt(devil.y / 50)) {
-            hitDevil = true
+        const gridX = this.x / BoxS
+        const gridY = this.y / BoxS
+
+        const enemiesGridList = []
+        for (const enemy of enemies) {
+            enemyGridX = enemy.x / BoxS
+            enemyGridY = enemy.y / BoxS
+            enemiesGridList.push({ "gridX": enemyGridX, "gridY": enemyGridY })
         }
 
-        if (parseInt(this.x / 50) == parseInt(skull.x / 50) && parseInt(this.y / 50) == parseInt(skull.y / 50)) {
-            hitSkull = true
+        let hit = false
+        for (const grid of enemiesGridList) {
+            if (gridX == grid.gridX) {
+                if (gridY == grid.gridY) {
+                    hit = true
+                    break
+                }
+            }
         }
 
-        if (parseInt(this.x / 50) == parseInt(slime.x / 50) && parseInt(this.y / 50) == parseInt(slime.y / 50)) {
-            hitSlime = true
-        }
-
-        if (hitSlime | hitSkull | hitDevil) {
+        if (hit) {
             this.dead = true
             playMusic(deadAudioRoute, deadVolume)
-            restart()
         }
     }
 
@@ -179,7 +100,7 @@ const prota = function (x, y, image, movL) {
     }
 
     this.move = function (where) {
-        if (CanMove(this.x, this.y, where, movL)) {
+        if (CanMove(this.x, this.y, where, this.movL)) {
             let prevX = this.x
             let prevY = this.y
             switch (where) {
@@ -226,59 +147,168 @@ const enemy = function (x, y, image, movL, timeToMov, range) {
             let validMove = false
             this.time = 0
             const list = moveMaker(this.x, this.y, range, movL)
-            this.x=list[0]
-            this.y=list[1]
+            this.x = list[0]
+            this.y = list[1]
         }
     }
 }
-//Objetos
-let player = new prota(InitPlayerX, InitPlayerY, sprites.player, playerMovList)
-let devil = new enemy(InitDevilX, InitDevilY, sprites.devil, devilMovList, 30, ranges.devil)
-let skull = new enemy(InitSkullX, InitSkullY, sprites.skull, skullMovList, 20, ranges.skull)
-let slime = new enemy(InitSlimeX, InitSlimeY, sprites.slime, slimeMovList, 35, ranges.slime)
-
 
 //-------------Iniciar carga de personajes y enemigos-------
+let currentMap = 1
+let mapCharged = 0
+let mapInfo
 
-function init_paint_map() {
-    let selected
-    for (let y = 0; y < canvas.height / BoxS; y++) {
-        for (let x = 0; x < canvas.width / BoxS; x++) {
-            if (map[y][x] == 0) {
-                selected = sprites.wall
-            } if (map[y][x] == 1) {
-                selected = sprites.land
-            } if (map[y][x] == 2) {
-                selected = sprites.lava
-            } if (map[y][x] == 3) {
-                selected = sprites.land
-            } if (map[y][x] == 4) {
-                selected = sprites.key
-                if (!mapCharged) {
-                    keyL.push([x, y])
-                    numKeys++
-                }
-            } if (map[y][x] == 5) {
-                selected = sprites.door
+async function chargeMap() {
+    try {
+        const response = await fetch("./maps/map" + currentMap + ".json")
+        if (response.ok) {
+            const map = await response.json()
+            return map
+        } else {
+            throw new Error(response.status)
+        }
+
+    } catch (error) {
+        console.error("Carga fallida", error)
+    }
+}
+
+
+let newMap, structures, keys, doors, typesOfEnemies, playerStart, mapId, mapHistory, mapName, playerMovList, numKeys,originalKeys
+const assets = {
+    structures: {},
+    enemies: {},
+    player: null,
+    key: null,
+    door: null
+}
+
+async function getMapInfo() {
+    if (currentMap > mapCharged) {
+        try {
+            mapInfo = await chargeMap()
+            if (!mapInfo) throw new Error("No se ha recibido el mapa")
+
+            newMap = mapInfo.mapCoords
+            structures = mapInfo.structuresCode
+            keys = mapInfo.keysCoords
+            doors = mapInfo.doorsCoords
+            typesOfEnemies = mapInfo.enemies
+            playerStart = mapInfo.playerStart
+            mapId = mapInfo.id
+            mapHistory = mapInfo.history
+            mapName = mapInfo.mapName
+            playerMovList = mapInfo.playerMovList
+            numKeys = keys.length
+            originalKeys = JSON.parse(JSON.stringify(mapInfo.keysCoords)); 
+            console.log("MAPA CARGADO:", currentMap, "Llaves originales:", originalKeys);
+            for (const structure of structures) {
+                const src = "./images/structures/" + structure.name + ".png"
+                assets.structures[structure.code] = await loadImage(src)
             }
 
-            ctx.drawImage(selected, x * BoxS, y * BoxS, BoxS, BoxS)
+            for (const enemy of typesOfEnemies) {
+                const name = enemy.type
+                const src = "./images/enemies/" + name + ".png"
+                assets.enemies[name] = await loadImage(src)
+            }
+            assets.key = await loadImage("./images/general/book.png")
+            assets.player = await loadImage("./images/general/player.png")
+            assets.door = await loadImage("./images/general/portal.png")
+
+            mapCharged++
+        } catch (error) {
+            console.error("Error: " + error)
         }
     }
-    mapCharged = true
+}
+
+function loadImage(src) {
+    return new Promise((resolve, reject) => {
+        const img = new Image()
+        img.onload = () => resolve(img)
+        img.onerror = (e) => reject("Error loading: " + src)
+        img.src = src
+    })
+}
+
+function init_paint_map() {
+    for (let gridY = 0; gridY < newMap.length; gridY++) {
+        for (let gridX = 0; gridX < newMap[0].length; gridX++) {
+            const code = newMap[gridY][gridX]
+            const img = assets.structures[code]
+            const x = gridX * BoxS
+            const y = gridY * BoxS
+            if (img) {
+                if (newMap[gridY][gridX] == code) {
+
+                    ctx.drawImage(img, x, y, BoxS, BoxS)
+                }
+            } else {
+                ctx.Style = "magenta"    //If no image was uploades
+                ctx.fillRect(x, y, BoxS, BoxS)
+            }
+        }
+    }
+
+    if (keys) {
+        for (const key of keys) {
+            const x = key.gridX * BoxS
+            const y = key.gridY * BoxS
+            ctx.drawImage(assets.key, x, y, BoxS, BoxS)
+        }
+    }
+    if (doors) {
+        for (const door of doors) {
+            const x = door.gridX * BoxS
+            const y = door.gridY * BoxS
+            ctx.drawImage(assets.door, x, y, BoxS, BoxS)
+        }
+    }
 }
 
 function paint_map(x, y, color) {
-    map[parseInt(y / BoxS)][parseInt(x / BoxS)] = color
+    const gridX = x / BoxS
+    const gridY = y / BoxS
+    newMap[parseInt(gridY)][parseInt(gridX)] = color
 }
 
 function borrar() {
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 }
 
+let enemies = []
+let player
+
+function init_creatures() {
+    enemies = []
+    if (typesOfEnemies) {
+        for (const enemyType of typesOfEnemies) {
+            const movL = enemyType.walkableStructures
+            const name = enemyType.type
+            const image = assets.enemies[name]
+            const range = enemyType.range
+            const timeToMov = enemyType.time
+            for (const coord of enemyType.coords) {
+                const x = coord.gridX * BoxS
+                const y = coord.gridY * BoxS
+                enemies.push(new enemy(x, y, image, movL, timeToMov, range))
+            }
+        }
+    }
+
+    if (playerStart) {
+        const x = playerStart.gridX * BoxS
+        const y = playerStart.gridY * BoxS
+        const image = assets.player
+        player = new prota(x, y, image, playerMovList)
+        refreshKeyStatus()
+    }
+}
+
 //........................................Handle positions, if can move or not------------------------------------------
 function moveMaker(x, y, range, list) {
-    const distance = Math.sqrt((Math.pow(player.x - x,2)) + Math.pow(player.y - y, 2))/BoxS
+    const distance = Math.sqrt((Math.pow(player.x - x, 2)) + Math.pow(player.y - y, 2)) / BoxS
     if (distance > range) {
         let validMove = false
 
@@ -356,24 +386,24 @@ function moveMaker(x, y, range, list) {
                     console.log("Number not expected in function 'moveMaker'")
             }
         }
-        return [x,y]
+        return [x, y]
     } else {
-        const path = aStar(x,y,player.x,player.y,list)
-        if (path && path.length >1){
+        const path = aStar(x, y, player.x, player.y, list)
+        if (path && path.length > 1) {
             const nextMove = path[1] ? path[1] : path[0]
-            if (nextMove && typeof nextMove.x == "number" && typeof nextMove.y == "number"){
+            if (nextMove && typeof nextMove.x == "number" && typeof nextMove.y == "number") {
                 return [nextMove.x, nextMove.y]
             } else {
                 console.log("Error con el path")
             }
         }
-        return [x,y]
+        return [x, y]
 
     }
 }
 
 function getGrid(x, y) {
-    return map[parseInt(y / BoxS)][parseInt(x / BoxS)]
+    return newMap[Math.floor((y / BoxS))][Math.floor(parseInt(x / BoxS))]
 }
 
 function isMovable(x, y, movableL) {
@@ -559,11 +589,11 @@ function aStar(initx, inity, finalx, finaly, list) {
 }
 
 function canMoveGrid(gridX, gridY, movL) {
-    if (gridX < 0 || gridY < 0 || gridX >= map[0].length || gridY >= map.length) {
+    if (gridX < 0 || gridY < 0 || gridX >= newMap[0].length || gridY >= newMap.length) {
         return false
     }
 
-    const tileKey = map[gridY][gridX]
+    const tileKey = newMap[gridY][gridX]
     if (movL.includes(tileKey)) return true
 
     return false
@@ -571,36 +601,26 @@ function canMoveGrid(gridX, gridY, movL) {
 
 //--------------------------------Restart----------------------------------
 
-function restart() {
-    drawKey()
-
-    player.x = InitPlayerX
-    player.y = InitPlayerY
-    player.key = 0
-
-    devil.x = InitDevilX
-    devil.y = InitDevilY
-
-    slime.x = InitSlimeX
-    slime.y = InitSlimeY
-
-    skull.x = InitSkullX
-    skull.y = InitSkullY
-
-    mapCharged = false
-
+async function nextLevel() {
+    
+    currentMap++
+    await getMapInfo()
     init_paint_map()
+    init_creatures()
+    loadMapInfo()
+    player.text()
     refreshKeyStatus()
 }
 
-function drawKey() {
-    for (let i = 0; i < numKeys; i++) {
-        let actualArray = keyL[i]
-        paint_map(actualArray[0] * BoxS, actualArray[1] * BoxS, key)
-    }
-    numKeys = 0
-    keyL = []
+function reset_level(){
+    console.log("REINICIANDO... Llaves en memoria:", keys, "Copia de seguridad:", originalKeys);
+    keys=JSON.parse(JSON.stringify(originalKeys))
+    player.x=playerStart.gridX*BoxS
+    player.y=playerStart.gridY*BoxS
+    init_paint_map()
+    init_creatures()
 }
+
 
 //-----------------------------------------------------------------------------------------------------------
 function dark_background() {
@@ -621,7 +641,7 @@ function showText(text) {
 
 function loadMapInfo() {
     if (currentMap == 1) {
-        history.innerHTML = map1_history
+        history.innerHTML = mapInfo.history
     }
 }
 
@@ -631,10 +651,10 @@ function refreshKeyStatus() {
     const bookTrue = player.key
     const bookFalse = numKeys - bookTrue
     for (let i = 0; i < bookTrue; i++) {
-        status.innerHTML += "<img src='./map/IconBookTrue.png' style='width:75px;height:75px' >"
+        status.innerHTML += "<img src='./images/icon/IconBookTrue.png' style='width:75px;height:75px' >"
     }
     for (let i = 0; i < bookFalse; i++) {
-        status.innerHTML += "<img src='./map/IconBookFalse.png' style='width:75px;height:75px'>"
+        status.innerHTML += "<img src='./images/icon/IconBookFalse.png' style='width:75px;height:75px'>"
     }
 }
 //---------------------------------------Events---------------------------------
@@ -655,9 +675,10 @@ document.addEventListener("keydown", function (e) {
         spaceBar()
     }
 
-    if (e.key == " " || e.key == "Enter") {
+    if (e.key == " " || e.key == "Enter"){
         if (player.dead) {
             player.dead = false
+            reset_level()
         }
     }
 
@@ -714,13 +735,14 @@ function playMusic(src, vol = 0.5) {
     music.play()
 }
 
-function inicializar() {
-    player.text()
-    loadMapInfo()
-    backgroundMusic.play()
-    console.log("Funciona");
+async function initialize() {
+    await getMapInfo()
     init_paint_map()
+    init_creatures()
+    loadMapInfo()
+    player.text()
     refreshKeyStatus()
+    backgroundMusic.play()
     setInterval(function () {
         principal()
     }, 1000 / FPS)
@@ -735,10 +757,17 @@ function principal() {
     }
     borrar()
     init_paint_map()
-    slime.paint()
-    devil.paint()
-    skull.paint()
+
     player.paint()
+    
+    for (const enemy of enemies) {
+        enemy.paint()
+    }
+        
+    if (player.dead) {
+        showText("You have died, press ENTER to respawn")
+        return
+    }
 
     if (!player.requestAccepted) {
         delay++
@@ -747,11 +776,6 @@ function principal() {
             player.requestAccepted = true
             delay = 0
         }
-        return
-    }
-
-    if (player.dead) {
-        showText("You have died, press ENTER to respawn")
         return
     }
 
@@ -778,19 +802,15 @@ function principal() {
 
     //player.showlocation()
 
-    devil.move()
-    skull.move()
-    slime.move()
+    for (const enemy of enemies) {
+        enemy.move()
+    }
 
 }
 //---------Futuras cosas-----------
-//Hacer para que el A* solo busque el path si el jugador se encuentra dentro del rango enemigo y no actualizar hasta q el jugador se mueva
 //Cambiar el parseInt por Math.floor
 //Más mapas
-//Sistema de inteligencia para enemigos -> A*
 //Objeto que permita al personaje caminar sobre la lava
 //Objeto para caminar sobre el agua
 //Mapa final
-//Sistema para leer otros archivos que es donde se guarda la información
-//de los mapas y ubicación de enemigos
-//Sistema de colores e imágenes autoajustable -> meter dentro de string cada cosa
+//Quitar fondos a personajes
