@@ -155,7 +155,7 @@ const enemy = function (x, y, image, movL, timeToMov, range) {
 
 //-------------Iniciar carga de personajes y enemigos-------
 let currentMap = 1
-let mapCharged = 0
+let mapCharged = currentMap-1
 let mapInfo
 
 async function chargeMap() {
@@ -619,6 +619,7 @@ function reset_level(){
     player.y=playerStart.gridY*BoxS
     init_paint_map()
     init_creatures()
+    loadMapInfo()
 }
 
 
@@ -640,9 +641,7 @@ function showText(text) {
 }
 
 function loadMapInfo() {
-    if (currentMap == 1) {
-        history.innerHTML = mapInfo.history
-    }
+    history.innerHTML = mapInfo.history
 }
 
 function refreshKeyStatus() {
