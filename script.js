@@ -1,132 +1,7 @@
 
 const delayForKeyRequest = 0
 let delay = delayForKeyRequest
-
-
 let canmove = true
-let canvas = document.getElementById("canv");
-let ctx = canvas.getContext("2d");
-
-canvas.width = 1650
-canvas.height = 850
-
-const position = document.getElementById("position")
-const status = document.getElementById("status")
-const history = document.getElementById("history")
-
-const FPS = 50;
-
-//Casilla
-const BoxS = 50;
-
-//Clases
-const prota = function (x, y, image, movL) {
-    this.dead = false
-    this.x = x;
-    this.y = y;
-    this.image = image
-    this.win = false
-    this.key = 0
-    this.requestAccepted = true
-    this.movL = movL
-
-    this.logic = function (prevX, prevY) {
-        const gridX = Math.floor(this.x / BoxS)
-        const gridY = Math.floor(this.y / BoxS)
-        if (keys.length > 0) {
-            let i = 0
-            for (const k of keys) {
-                if (gridX == k.gridX && gridY == k.gridY) {
-                    this.requestAccepted = true
-                    this.key++
-                    playMusic(keyAudioRoute, keyVolume)
-                    refreshKeyStatus()
-                    console.log("LLAVE RECOGIDA. Restantes en keys:", keys.length);
-                    break
-                }
-                i++
-            }
-            keys.splice(i, 1)
-        }
-
-        if (doors.length > 0) {
-            for (const door of doors) {
-                if (door.gridX == gridX && door.gridY == gridY) {
-                    if (this.key >= numKeys) {
-                        this.win = true
-                        playMusic(portalAudioRoute, portalVolume)
-                        nextLevel()
-                    } else {
-                        this.requestAccepted = false
-                        console.log(this.requestAccepted)
-                        this.y = prevY
-                        this.x = prevX
-                    }
-                    break
-                }
-            }
-        }
-    }
-
-    this.enemyColition = function () {
-        const gridX = this.x / BoxS
-        const gridY = this.y / BoxS
-
-        const enemiesGridList = []
-        for (const enemy of enemies) {
-            enemyGridX = enemy.x / BoxS
-            enemyGridY = enemy.y / BoxS
-            enemiesGridList.push({ "gridX": enemyGridX, "gridY": enemyGridY })
-        }
-
-        let hit = false
-        for (const grid of enemiesGridList) {
-            if (gridX == grid.gridX) {
-                if (gridY == grid.gridY) {
-                    hit = true
-                    break
-                }
-            }
-        }
-
-        if (hit) {
-            this.dead = true
-            playMusic(deadAudioRoute, deadVolume)
-        }
-    }
-
-    this.paint = function () {
-        ctx.drawImage(this.image, this.x, this.y, BoxS, BoxS)
-    }
-
-    this.move = function (where) {
-        if (CanMove(this.x, this.y, where, this.movL)) {
-            let prevX = this.x
-            let prevY = this.y
-            switch (where) {
-                case "Up":
-                    this.y -= BoxS
-                    break
-                case "Down":
-                    this.y += BoxS
-                    break
-                case "Left":
-                    this.x -= BoxS
-                    break
-                case "Right":
-                    this.x += BoxS
-                    break
-            }
-            this.logic(prevX, prevY)
-            this.text()
-            // playMusic(moveAudioRoute,moveVolume)
-        }
-    }
-
-    this.text = function () {
-        position.innerHTML = "<p>X:" + this.x + " Y:" + this.y + "</p>"
-    }
-}
 
 const enemy = function (x, y, image, movL, timeToMov, range) {
     this.x = x
@@ -157,22 +32,6 @@ const enemy = function (x, y, image, movL, timeToMov, range) {
 let currentMap = 1
 let mapCharged = currentMap-1
 let mapInfo
-
-async function chargeMap() {
-    try {
-        const response = await fetch("./maps/map" + currentMap + ".json")
-        if (response.ok) {
-            const map = await response.json()
-            return map
-        } else {
-            throw new Error(response.status)
-        }
-
-    } catch (error) {
-        console.error("Carga fallida", error)
-    }
-}
-
 
 let newMap, structures, keys, doors, typesOfEnemies, playerStart, mapId, mapHistory, mapName, playerMovList, numKeys,originalKeys
 const assets = {
@@ -232,49 +91,10 @@ function loadImage(src) {
     })
 }
 
-function init_paint_map() {
-    for (let gridY = 0; gridY < newMap.length; gridY++) {
-        for (let gridX = 0; gridX < newMap[0].length; gridX++) {
-            const code = newMap[gridY][gridX]
-            const img = assets.structures[code]
-            const x = gridX * BoxS
-            const y = gridY * BoxS
-            if (img) {
-                if (newMap[gridY][gridX] == code) {
-
-                    ctx.drawImage(img, x, y, BoxS, BoxS)
-                }
-            } else {
-                ctx.Style = "magenta"    //If no image was uploades
-                ctx.fillRect(x, y, BoxS, BoxS)
-            }
-        }
-    }
-
-    if (keys) {
-        for (const key of keys) {
-            const x = key.gridX * BoxS
-            const y = key.gridY * BoxS
-            ctx.drawImage(assets.key, x, y, BoxS, BoxS)
-        }
-    }
-    if (doors) {
-        for (const door of doors) {
-            const x = door.gridX * BoxS
-            const y = door.gridY * BoxS
-            ctx.drawImage(assets.door, x, y, BoxS, BoxS)
-        }
-    }
-}
-
 function paint_map(x, y, color) {
     const gridX = x / BoxS
     const gridY = y / BoxS
     newMap[parseInt(gridY)][parseInt(gridX)] = color
-}
-
-function borrar() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
 }
 
 let enemies = []
@@ -657,17 +477,6 @@ function refreshKeyStatus() {
     }
 }
 //---------------------------------------Events---------------------------------
-let pause = false
-
-function spaceBar() {
-    if (pause) {
-        pause = false
-        backgroundMusic.play()
-    } else {
-        pause = true
-        backgroundMusic.pause()
-    }
-}
 document.addEventListener("keydown", function (e) {
 
     if (e.key == " " && !player.dead) {
@@ -714,102 +523,3 @@ document.addEventListener("keyup", function (e) {
         canmove = true;
     }
 });
-
-//-----------------------------------------------------------------------------
-const backgroundMusic = new Audio("./music/music.wav")
-backgroundMusic.loop = true
-backgroundMusic.volume = 0.4
-const deadAudioRoute = "./music/dead.wav"
-const deadVolume = 1
-const keyAudioRoute = "./music/key.wav"
-const keyVolume = 0.3
-const portalAudioRoute = "./music/portal.wav"
-const portalVolume = 1
-const moveAudioRoute = "./music/move.wav"
-const moveVolume = 0.05
-
-function playMusic(src, vol = 0.5) {
-    const music = new Audio(src)
-    music.volume = vol
-    music.play()
-}
-
-async function initialize() {
-    await getMapInfo()
-    init_paint_map()
-    init_creatures()
-    loadMapInfo()
-    player.text()
-    refreshKeyStatus()
-    backgroundMusic.play()
-    setInterval(function () {
-        principal()
-    }, 1000 / FPS)
-
-}
-
-
-function principal() {
-    if (player.win) {
-        showText("You have passed the level :D, press ENTER to restart")
-        return
-    }
-    borrar()
-    init_paint_map()
-
-    player.paint()
-    
-    for (const enemy of enemies) {
-        enemy.paint()
-    }
-        
-    if (player.dead) {
-        showText("You have died, press ENTER to respawn")
-        return
-    }
-
-    if (!player.requestAccepted) {
-        delay++
-        showText("You need all books")
-        if (delay >= 100) {
-            player.requestAccepted = true
-            delay = 0
-        }
-        return
-    }
-
-    if (pause) {
-        ctx.save()
-
-        dark_background()
-
-        ctx.fillStyle = "#ede245d8"
-        const barWidth = 20
-        const barHeight = 80
-        const centerX = canvas.width / 2
-        const centerY = canvas.height / 2
-
-        ctx.fillRect(centerX - 40, centerY - barHeight / 2, barWidth, barHeight)
-        ctx.fillRect(centerX + 20, centerY - barHeight / 2, barWidth, barHeight)
-
-        ctx.restore()
-
-        return
-    }
-
-    player.enemyColition()
-
-    //player.showlocation()
-
-    for (const enemy of enemies) {
-        enemy.move()
-    }
-
-}
-//---------Futuras cosas-----------
-//Cambiar el parseInt por Math.floor
-//Más mapas
-//Objeto que permita al personaje caminar sobre la lava
-//Objeto para caminar sobre el agua
-//Mapa final
-//Quitar fondos a personajes
